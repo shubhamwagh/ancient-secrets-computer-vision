@@ -1,28 +1,31 @@
-version: 2
-jobs:
-  build:
-    docker:
-      - image: ubuntu:18.04
+workflows:
+  version: 2
+  build-and-test:
+    jobs:
+      - build:
+          docker:
+            - image: ubuntu:18.04
 
-    steps:
-      - checkout
+          steps:
+            - checkout
 
-      - run:
-          name: Change directory to vision-hw0
-          command: cd ./visio-hw0
+          - run:
+             name: Change directory to vision-hw0
+             command: cd ./visio-hw0
       
-      - run:
-          name: Make the program
-          command: make
+          - run:
+             name: Make the program
+             command: make
    
-  test:
-    requires:
-      - build
+      - test:
+          requires:
+            - build
     
-    steps:
-      - checkout
+          steps:
+            - checkout
                     
-      - run:
-          name: test
-          command: ./uwimg test
+          - run:
+             name: test
+             command: ./uwimg test
     
+
