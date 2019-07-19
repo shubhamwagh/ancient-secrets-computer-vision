@@ -5,6 +5,8 @@ jobs:
     steps:
       - checkout
       - run: ls
+      - run: apt-get update
+      - run : which make
       - run: cd ./vision-hw0 && pwd
   test:
     docker:
