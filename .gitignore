@@ -30,3 +30,7 @@ Thumbs.db
 **/Icon?
 **/Thumbs.db
 **/*.swp
+
+*.so
+
+*.a
