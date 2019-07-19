@@ -12,10 +12,11 @@ jobs:
     steps:
 
       - run: apt-get update
+      - run: ls -lah
       - run: apt-get install build-essential --yes
       - run: which make
-      - run: cd ./vision-hw0 && ls
-      - run: cd ./vision-hw0 && make
+
+
 
       - persist_to_workspace:
           root: ./vision-hw0
