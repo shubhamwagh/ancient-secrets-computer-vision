@@ -8,6 +8,11 @@ jobs:
       - run: apt-get install build-essential --yes
       - run: which make
       - run: cd ./vision-hw0 && make
+      - run: cd ./vision-hw0 && ls
+      - save_cache:
+          key: cache
+          paths:
+            - ./vision-hw0/uwimg
   test:
     docker:
       - image: ubuntu:18.04
