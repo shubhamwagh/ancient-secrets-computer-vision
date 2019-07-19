@@ -2,15 +2,27 @@ version: 2
 jobs:
   build:
     docker:
-      - image: debian:stretch
+      - image: ubuntu:18.04
 
     steps:
       - checkout
 
       - run:
-          name: Greeting
-          command: echo Hello, world.
-
+          name: Change directory to vision-hw0
+          command: cd ./visio-hw0
+      
       - run:
-          name: Print the Current Time
-          command: date
+          name: Make the program
+          command: make
+   
+  test:
+    requires:
+      - build
+    
+    steps:
+      - checkout
+                    
+      - run:
+          name: test
+          command: ./uwimg test
+    
