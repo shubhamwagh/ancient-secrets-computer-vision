@@ -12,7 +12,7 @@ jobs:
     steps:
       - checkout
       - run: apt-get update
-      -run: apt-get install \
+      - run: apt-get install \
             apt-transport-https \
             ca-certificates \
             curl \
