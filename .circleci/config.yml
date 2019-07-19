@@ -12,6 +12,7 @@ jobs:
     steps:
       - checkout
       - run: cd ./vision-hw0
+      - run: ls
       - run: ./uwimg test
 
 
