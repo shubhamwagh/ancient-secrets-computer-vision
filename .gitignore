@@ -1,15 +1,32 @@
-vision-hw0/*.o
-vision-hw0/*.dSYM
-vision-hw0/*.csv
-vision-hw0/*.out
-vision-hw0/*.pyc
-vision-hw0/.fuse*
-vision-hw0/libuwimg*
-vision-hw0/uwimg
+*.o
+*.dSYM
+*.csv
+*.out
+*.pyc
+.fuse*
+libuwimg*
+uwimg
 
 # OS Generated #
-vision-hw0/.DS_Store*
-vision-hw0/ehthumbs.db
-vision-hw0/Icon?
-vision-hw0/Thumbs.db
-vision-hw0/*.swp
+.DS_Store*
+ehthumbs.db
+Icon?
+Thumbs.db
+*.swp
+
+
+**/*.o
+**/*.dSYM
+**/*.csv
+**/*.out
+**/*.pyc
+**/.fuse*
+**/libuwimg*
+**/uwimg
+
+# OS Generated #
+**/.DS_Store*
+**/ehthumbs.db
+**/Icon?
+**/Thumbs.db
+**/*.swp
