@@ -14,8 +14,6 @@ jobs:
       - image: ubuntu:18.04
     steps:
       - checkout
-      - restore_cache:
-          key: uwimg_cache
       - run: cd ./vision-hw0 && ls
       - run: cd ./vision-hw0 && make && ./uwimg test
 
