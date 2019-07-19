@@ -6,7 +6,7 @@ jobs:
       - checkout
       - run: ls
       - run: apt-get update
-      - run: apt-get install build-essential
+      - run: apt-get install build-essential --yes
       - run : which make
       - run: cd ./vision-hw0 && make
   test:
