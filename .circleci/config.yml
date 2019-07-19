@@ -12,6 +12,12 @@ jobs:
     steps:
       - checkout
       - run: apt-get update
+      -run: apt-get install \
+            apt-transport-https \
+            ca-certificates \
+            curl \
+            gnupg-agent \
+            software-properties-common
       - run: ls -lah
       - run: apt-get install build-essential --yes
       - run: which make
