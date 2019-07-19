@@ -15,13 +15,12 @@ jobs:
       - run: ls -lah
       - run: apt-get install build-essential --yes
       - run: which make
-
-
+      - run: cd ./vision-hw0 && make
 
       - persist_to_workspace:
           root: ./vision-hw0
           paths:
-            - uwimg
+            - ./uwimg
     
   test:
     executor: create-image
