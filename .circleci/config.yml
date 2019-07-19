@@ -10,7 +10,7 @@ jobs:
       - run: cd ./vision-hw0 && make
       - run: cd ./vision-hw0 && ls
       - save_cache:
-          key: cache
+          key: uwimg_cache
           paths:
             - ./vision-hw0/uwimg
   test:
@@ -18,6 +18,8 @@ jobs:
       - image: ubuntu:18.04
     steps:
       - checkout
+      - restore_cache:
+          key: uwimg_cache
       - run: cd ./vision-hw0 && ls
       - run: cd ./vision-hw0 && ./uwimg test
 
