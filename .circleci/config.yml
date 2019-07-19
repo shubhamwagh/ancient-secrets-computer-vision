@@ -1,21 +1,34 @@
+version: 2.1
+
+executors:
+   create-image:
+     docker:
+       - image: ubuntu:18.04
+     working_directory: ./
+
 jobs:
   build:
-    docker:
-      - image: ubuntu:18.04
+    executors: create-image
     steps:
       - checkout
       - run: apt-get update
       - run: apt-get install build-essential --yes
       - run: which make
       - run: cd ./vision-hw0 && make
+
+      - persist_to_workspace:
+          root: ./vision-hw0
+          paths:
+            - uwimg
     
   test:
-    docker:
-      - image: ubuntu:18.04
+    executors: create-image
     steps:
       - checkout
+      - attach_workspace:
+           at: ./vision-hw0
       - run: cd ./vision-hw0 && ls
-      - run: cd ./vision-hw0 && make && ./uwimg test
+      - run: cd ./vision-hw0 && ./uwimg test
 
 
 workflows:
