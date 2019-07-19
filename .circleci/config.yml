@@ -14,6 +14,7 @@ jobs:
       - run: apt-get update
       - run: apt-get install build-essential --yes
       - run: which make
+      - run: pwd && ls
       - run: cd ./vision-hw0 && make
 
       - persist_to_workspace:
