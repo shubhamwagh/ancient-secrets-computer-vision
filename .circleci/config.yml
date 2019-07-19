@@ -10,7 +10,7 @@ jobs:
   build:
     executor: create-image
     steps:
-
+      - checkout
       - run: apt-get update
       - run: ls -lah
       - run: apt-get install build-essential --yes
@@ -26,7 +26,7 @@ jobs:
   test:
     executor: create-image
     steps:
-
+      - checkout
       - attach_workspace:
            at: ./vision-hw0
       - run: cd ./vision-hw0 && ls
