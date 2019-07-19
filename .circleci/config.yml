@@ -4,7 +4,7 @@ executors:
    create-image:
      docker:
        - image: ubuntu:18.04
-     working_directory: ./
+     working_directory: ~/$CIRCLE_PROJECT_REPONAME
 
 jobs:
   build:
