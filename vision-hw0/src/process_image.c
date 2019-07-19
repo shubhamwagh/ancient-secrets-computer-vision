@@ -128,7 +128,13 @@ void rgb_to_hsv(image im)
     	    
     	    min = three_way_min(red_channel_pixel_val, green_channel_pixel_val, blue_channel_pixel_val);
     	    C = value - min;
-    	    saturation = C / value;
+		
+		
+    	    if (value!=0)
+    	    {
+    	       saturation = C / value;
+    	    }
+    	    else saturation = 0;
     	    
     	    
     	    
