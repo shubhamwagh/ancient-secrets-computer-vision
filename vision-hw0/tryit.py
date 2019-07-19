@@ -39,8 +39,3 @@ clamp_image(im)
 hsv_to_rgb(im)
 save_image(im, "dog_extra_saturated")
 
-# 8. Colorspace and chroma
-im = load_image("data/dog.jpg")
-rgb_to_hcl(im)
-
-save_image(im, "dog_hcl")
