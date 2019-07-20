@@ -41,3 +41,40 @@ test:vision-hw0:
         - ./
 
 
+#Full build of all packages in the repo
+build:vision-hw1:
+    stage: build
+    image: registry.gitlab.com/shubhamwagh48/continuous-integration-vision:latest
+
+    tags:
+        - gitlab-org 
+
+    script: 
+        - cd ./vision-hw1 && make
+        
+    artifacts:
+        paths:
+        - ./
+
+#test all packages in the repo
+test:vision-hw1:
+    stage: test
+    image: registry.gitlab.com/shubhamwagh48/continuous-integration-vision:latest
+
+    variables:
+        GIT_STRATEGY: none
+
+    tags:
+        - gitlab-org 
+
+    dependencies:
+    - build:vision-hw1
+
+    script:
+    - cd ./vision-hw1
+    - ls -lah
+    - ./uwimg test
+
+    artifacts:
+        paths:
+        - ./
