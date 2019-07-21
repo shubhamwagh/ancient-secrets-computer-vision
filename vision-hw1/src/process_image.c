@@ -6,28 +6,21 @@
 
 float get_pixel(image im, int x, int y, int c)
 {
-
-    if ((x >= 0 && x < im.w) && (y>=0 && y < im.h) && (c >=0 && c < im.c)){
-       return im.data[x + y*im.w + c*im.w*im.h]; 	
-    }
-
-    else {
     
     	x = x < 0 ? 0 : (x > im.w ? im.w -1 : x);
     	y = y < 0 ? 0 : (y > im.h ? im.h -1 : y);
     	c = c < 0 ? 0 : (c > im.c ? im.c -1 : c);
 
-    	return im.data[x + y*im.w + c*im.w*im.h];   
-    }
-     	 
+    	return im.data[x + y*im.w + c*im.w*im.h];
+
 }
 
 void set_pixel(image im, int x, int y, int c, float v)
 {   
-    if ((x >= 0 && x < im.w) && (y>=0 && y < im.h) && (c >=0 && c < im.c)){
-    	im.data[x + y*im.w + c*im.w*im.h] = v;
-    }
-    else return;
+    if ((x < 0 || x >= im.w) || (y < 0 || y >= im.h) || (c < 0 || c >= im.c))
+        return;
+    else
+        im.data[x + y*im.w + c*im.w*im.h] = v;
     
 }
 
@@ -62,7 +55,8 @@ image rgb_to_grayscale(image im)
         for (int col = 0; col < im.w; col++) {
             // relative luminance
             L = 0.299 * get_pixel(im, col, row, 0) + 0.587 * get_pixel(im, col, row, 1) + 0.114 * get_pixel(im, col, row, 2);
-            gray.data[col + row * im.w] = L;
+
+            set_pixel(gray, col, row, 0, L);
         }
     }
     return gray;
@@ -70,14 +64,11 @@ image rgb_to_grayscale(image im)
 
 void shift_image(image im, int c, float v)
 {
-    float new_pixel_value = 0.0;
-
     for (int y =0; y < im.h; y++)
     {
     	for (int x=0; x < im.w; x++)
     	{ 
-    	    new_pixel_value = get_pixel(im, x, y, c) + v;
-    	    set_pixel(im, x, y, c, new_pixel_value);	
+    	    set_pixel(im, x, y, c, get_pixel(im, x, y, c) + v);
     	}
     }
 }
@@ -85,10 +76,22 @@ void shift_image(image im, int c, float v)
 void clamp_image(image im)
 {
 
-    for (int i =0; i < (im.w*im.h*im.c); i++)
+    for (int c =0; c < im.c; c++)
     {
-    	im.data[i] = im.data[i] < 0 ? 0 : (im.data[i] > 1 ? 1 : im.data[i]);
+        for (int y =0; y < im.h; y++)
+        {
+            for (int x=0; x < im.w; x++)
+            {
+
+                float v = get_pixel(im, x, y, c);
+                v = (v < 0.0)? 0.0 : (v > 1.0 ? 1.0 : v);
+                set_pixel(im, x, y, c, v);
+
+            }
+        }
+
     }
+
 }
 
 

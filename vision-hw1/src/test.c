@@ -362,6 +362,7 @@ void run_tests()
     test_rgb_to_hsv();
     test_hsv_to_rgb();
     test_nn_resize();
+
     test_bl_resize();
     test_multiple_resize();
     test_gaussian_filter();
@@ -373,6 +374,7 @@ void run_tests()
     test_hybrid_image();
     test_frequency_image();
     test_sobel();
+
     printf("%d tests, %d passed, %d failed\n", tests_total, tests_total-tests_fail, tests_fail);
 }
 
