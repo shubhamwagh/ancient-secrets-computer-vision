@@ -52,6 +52,19 @@ float bilinear_interpolate(image im, float x, float y, int c)
     float q2 = 0.0;
 
     float q = 0.0;
+    
+        // compute weights
+/*
+         w1_x     w2_x
+        -----------------
+        |      |        | w1_y
+        |      |        |
+      q1|------|--------| q2
+        |      |        |
+        |      |        | w2_y
+        |      |        |
+        -----------------
+*/
 
     float w1_y = y - y_min;
     float w2_y = y_max -y;
