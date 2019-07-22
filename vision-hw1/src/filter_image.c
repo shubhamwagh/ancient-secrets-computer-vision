@@ -8,17 +8,34 @@
 
 void l1_normalize(image im)
 {
+    float normalization_factor = 0.0;
     for (int c =0; c< im.c; c++)
     {
         for (int row = 0; row < im.h; row++)
         {
             for (int col=0; col < im.w; col++)
             {
-                set_pixel(im, col, row, c, get_pixel(im, col, row, c) / (im.w * im.h * 1.0));
+
+                normalization_factor += get_pixel(im, col, row, c);
             }
         }
 
     }
+
+    for (int c =0; c< im.c; c++)
+    {
+        for (int row = 0; row < im.h; row++)
+        {
+            for (int col=0; col < im.w; col++)
+            {
+                set_pixel(im, col, row, c, get_pixel(im, col, row, c) / normalization_factor);
+
+
+            }
+        }
+
+    }
+
 
 }
 
@@ -53,47 +70,49 @@ image convolve_image(image im, image filter, int preserve)
     {
         convolved_image = make_image(im.w, im.h, im.c);
     }
-     else
+    else
     {
         convolved_image = make_image(im.w, im.h, 1);
     }
 
 
-     int filter_center = filter.w /2 ;
+    int filter_center = filter.w /2 ;
 
-     for (int c = 0; c < im.c; c++)
-     {
-         int filter_channel = (filter.c == 1) ? 0 : c;
-         for (int row = 0; row < im.h; row++)
-         {
-             for (int col = 0; col < im.w; col++)
-             {
-                 new_pixel_val = 0.0;
-                 for (int filter_row= 0; filter_row < filter.h; filter_row++)
-                 {
-                     for (int filter_col = 0; filter_col < filter.w; filter_col++)
-                     {
+    for (int c = 0; c < im.c; c++)
+    {
+        int filter_channel = (filter.c == 1) ? 0 : c;
+        for (int row = 0; row < im.h; row++)
+        {
+            for (int col = 0; col < im.w; col++)
+            {
+                new_pixel_val = 0.0;
+                for (int filter_row= 0; filter_row < filter.h; filter_row++)
+                {
+                    for (int filter_col = 0; filter_col < filter.w; filter_col++)
+                    {
 
 
-                         new_pixel_val += get_pixel(filter, filter_col, filter_row, filter_channel) *
-                                          get_pixel(im, col + filter_col - filter_center, row + filter_row - filter_center, c);
-                     }
-                 }
-                 if (preserve == 1)
-                 {
-                     set_pixel(convolved_image, col, row, c, new_pixel_val);
-                 }
-                 else
-                 {
-                     set_pixel(convolved_image, col, row, 0, new_pixel_val + get_pixel(convolved_image, col, row, 0));
-                 }
+                        new_pixel_val += get_pixel(filter, filter_col, filter_row, filter_channel) *
+                                         get_pixel(im, col + filter_col - filter_center, row + filter_row - filter_center, c);
+                    }
+                }
+                if (preserve == 1)
+                {
+                    set_pixel(convolved_image, col, row, c, new_pixel_val);
+                }
+                else
+                {
+                    set_pixel(convolved_image, col, row, 0, new_pixel_val + get_pixel(convolved_image, col, row, 0));
+                }
 
-             }
-         }
-     }
+            }
+        }
+    }
 
     return convolved_image;
 }
+
+
 
 image make_highpass_filter()
 {
@@ -101,15 +120,15 @@ image make_highpass_filter()
     image high_pass_filter = make_box_filter(3);
 
     set_pixel(high_pass_filter, 0, 0, 0, 0);
-    set_pixel(high_pass_filter, 0, 1, 0, -1);
-    set_pixel(high_pass_filter, 0, 2, 0, 0);
-
     set_pixel(high_pass_filter, 1, 0, 0, -1);
-    set_pixel(high_pass_filter, 1, 1, 0, 4);
-    set_pixel(high_pass_filter, 1, 2, 0, -1);
-
     set_pixel(high_pass_filter, 2, 0, 0, 0);
+
+    set_pixel(high_pass_filter, 0, 1, 0, -1);
+    set_pixel(high_pass_filter, 1, 1, 0, 4);
     set_pixel(high_pass_filter, 2, 1, 0, -1);
+
+    set_pixel(high_pass_filter, 0, 2, 0, 0);
+    set_pixel(high_pass_filter, 1, 2, 0, -1);
     set_pixel(high_pass_filter, 2, 2, 0, 0);
 
     return high_pass_filter;
@@ -121,15 +140,15 @@ image make_sharpen_filter()
     image sharpen_filter = make_box_filter(3);
 
     set_pixel(sharpen_filter, 0, 0, 0, 0);
-    set_pixel(sharpen_filter, 0, 1, 0, -1);
-    set_pixel(sharpen_filter, 0, 2, 0, 0);
-
     set_pixel(sharpen_filter, 1, 0, 0, -1);
-    set_pixel(sharpen_filter, 1, 1, 0, 5);
-    set_pixel(sharpen_filter, 1, 2, 0, -1);
-
     set_pixel(sharpen_filter, 2, 0, 0, 0);
+
+    set_pixel(sharpen_filter, 0, 1, 0, -1);
+    set_pixel(sharpen_filter, 1, 1, 0, 5);
     set_pixel(sharpen_filter, 2, 1, 0, -1);
+
+    set_pixel(sharpen_filter, 0, 2, 0, 0);
+    set_pixel(sharpen_filter, 1, 2, 0, -1);
     set_pixel(sharpen_filter, 2, 2, 0, 0);
 
     return sharpen_filter;
@@ -141,19 +160,20 @@ image make_emboss_filter()
 
 
     set_pixel(emboss_filter, 0, 0, 0, -2.0f);
-    set_pixel(emboss_filter, 0, 1, 0, -1.0f);
-    set_pixel(emboss_filter, 0, 2, 0, 0.0f);
-
     set_pixel(emboss_filter, 1, 0, 0, -1.0f);
-    set_pixel(emboss_filter, 1, 1, 0, 1.0f);
-    set_pixel(emboss_filter, 1, 2, 0, 1.0f);
-
     set_pixel(emboss_filter, 2, 0, 0, 0.0f);
+
+    set_pixel(emboss_filter, 0, 1, 0, -1.0f);
+    set_pixel(emboss_filter, 1, 1, 0, 1.0f);
     set_pixel(emboss_filter, 2, 1, 0, 1.0f);
+
+    set_pixel(emboss_filter, 0, 2, 0, 0.0f);
+    set_pixel(emboss_filter, 1, 2, 0, 1.0f);
     set_pixel(emboss_filter, 2, 2, 0, 2.0f);
 
     return emboss_filter;
 }
+
 
 // Question 2.2.1: Which of these filters should we use preserve when we run our convolution and which ones should we not? Why?
 // Answer: Highpass filter does not require to preserve channels.
@@ -228,36 +248,37 @@ image make_gx_filter()
 {
     image gx_filter = make_box_filter(3);
 
-    set_pixel(gx_filter, 0, 0, 0, -1);
-    set_pixel(gx_filter, 0, 1, 0, 0);
-    set_pixel(gx_filter, 0, 2, 0, 1);
+    set_pixel(gx_filter, 0, 0, 0, -1.0f);
+    set_pixel(gx_filter, 1, 0, 0, 0.0f);
+    set_pixel(gx_filter, 2, 0, 0, 1.0f);
 
-    set_pixel(gx_filter, 1, 0, 0, -2);
-    set_pixel(gx_filter, 1, 1, 0, 0);
-    set_pixel(gx_filter, 1, 2, 0, 2);
+    set_pixel(gx_filter, 0, 1, 0, -2.0f);
+    set_pixel(gx_filter, 1, 1, 0, 0.0f);
+    set_pixel(gx_filter, 2, 1, 0, 2.0f);
 
-    set_pixel(gx_filter, 2, 0, 0, -1);
-    set_pixel(gx_filter, 2, 1, 0, -0);
-    set_pixel(gx_filter, 2, 2, 0, 1);
+    set_pixel(gx_filter, 0, 2, 0, -1.0f);
+    set_pixel(gx_filter, 1, 2, 0, 0.0f);
+    set_pixel(gx_filter, 2, 2, 0, 1.0f);
 
     return gx_filter;
 }
+
 
 image make_gy_filter()
 {
     image gy_filter = make_box_filter(3);
 
-    set_pixel(gy_filter, 0, 0, 0, -1);
-    set_pixel(gy_filter, 0, 1, 0, -2);
-    set_pixel(gy_filter, 0, 2, 0, 1);
+    set_pixel(gy_filter, 0, 0, 0, -1.0f);
+    set_pixel(gy_filter, 1, 0, 0, -2.0f);
+    set_pixel(gy_filter, 2, 0, 0, -1.0f);
 
-    set_pixel(gy_filter, 1, 0, 0, 0);
-    set_pixel(gy_filter, 1, 1, 0, 0);
-    set_pixel(gy_filter, 1, 2, 0, 0);
+    set_pixel(gy_filter, 0, 1, 0, 0.0f);
+    set_pixel(gy_filter, 1, 1, 0, 0.0f);
+    set_pixel(gy_filter, 2, 1, 0, 0.0f);
 
-    set_pixel(gy_filter, 2, 0, 0, 1);
-    set_pixel(gy_filter, 2, 1, 0, 2);
-    set_pixel(gy_filter, 2, 2, 0, 1);
+    set_pixel(gy_filter, 0, 2, 0, 1.0f);
+    set_pixel(gy_filter, 1, 2, 0, 2.0f);
+    set_pixel(gy_filter, 2, 2, 0, 1.0f);
 
     return gy_filter;
 }
@@ -308,45 +329,39 @@ void feature_normalize(image im)
 
 image *sobel_image(image im)
 {
-    // TODO
-    image *sobel_result;
-    sobel_result = calloc(2, sizeof(image));
-
     image gx_filter = make_gx_filter();
     image gy_filter = make_gy_filter();
 
-    image convolved_gx_image = convolve_image(im, gx_filter, 0);
-    image convolved_gy_image = convolve_image(im, gx_filter, 0);
+    image convolved_x = convolve_image(im, gx_filter, 0);
+    image convolved_y = convolve_image(im, gy_filter, 0);
 
-    assert((convolved_gx_image.w == convolved_gy_image.w) && (convolved_gx_image.h == convolved_gy_image.h) && (convolved_gx_image.c == convolved_gy_image.c));
+    assert((convolved_x.w == convolved_y.w) && (convolved_x.h == convolved_y.h) && (convolved_x.c == convolved_y.c));
 
-    image magnitude = make_image(im.w, im.h, 1);
-    image gradient = make_image(im.w, im.h, 1);
+    image *sobel_result;
+    sobel_result = calloc(2, sizeof(convolved_x));
 
-    for (int row =0; row < im.h; row++)
-    {
-        for (int col =0; col < im.w; col++)
-        {
-            float gx = get_pixel(convolved_gx_image, col, row,0);
-            float gy = get_pixel(convolved_gy_image, col, row, 0);
+    image magnitude = make_image(convolved_x.w, convolved_x.h, convolved_x.c);
+    image gradient = make_image(convolved_x.w, convolved_x.h, convolved_x.c);
 
-            float magnitude_val = sqrt(gx * gx + gy * gy);
+    float magnitude_val, gradient_val;
 
-            float gradient_val = atan2(gy, gx);
 
-            set_pixel(magnitude, col, row, 0, magnitude_val);
-            set_pixel(gradient, col, row, 0, gradient_val);
+    for (int c = 0; c < convolved_x.c; c++) {
+        for (int row = 0; row < convolved_x.h; row++) {
+
+            for (int col = 0; col < convolved_x.w; col++) {
+                magnitude_val = sqrt(powf(get_pixel(convolved_x, col, row, c), 2) + powf(get_pixel(convolved_y, col, row, c), 2));
+                gradient_val = atan2(get_pixel(convolved_y, col, row, c), get_pixel(convolved_x, col, row, c));
+
+                set_pixel(magnitude, col, row, c, magnitude_val);
+                set_pixel(gradient, col, row, c, gradient_val);
+
+            }
         }
-    }
 
+    }
     sobel_result[0] = magnitude;
     sobel_result[1] = gradient;
-
-    free_image(convolved_gx_image);
-    free_image(convolved_gy_image);
-    free_image(gx_filter);
-    free_image(gy_filter);
-
     return sobel_result;
 }
 
@@ -384,5 +399,4 @@ image colorize_sobel(image im)
     return im_colorize_sobel;
 
 }
-
 

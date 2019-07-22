@@ -90,6 +90,8 @@ res = sobel_image(im)
 mag = res[0]
 feature_normalize(mag)
 save_image(mag, "magnitude")
+feature_normalize(res[1])
+save_image(res[1], "theta")
 
 # colorized sobel
 im = load_image("data/dog.jpg")

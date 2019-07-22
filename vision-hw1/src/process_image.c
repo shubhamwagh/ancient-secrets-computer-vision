@@ -7,9 +7,9 @@
 float get_pixel(image im, int x, int y, int c)
 {
     
-    	x = x < 0 ? 0 : (x > im.w ? im.w -1 : x);
-    	y = y < 0 ? 0 : (y > im.h ? im.h -1 : y);
-    	c = c < 0 ? 0 : (c > im.c ? im.c -1 : c);
+    	x = x < 0 ? 0 : (x >= im.w ? im.w -1 : x);
+    	y = y < 0 ? 0 : (y >= im.h ? im.h -1 : y);
+    	c = c < 0 ? 0 : (c >= im.c ? im.c -1 : c);
 
     	return im.data[x + y*im.w + c*im.w*im.h];
 
@@ -283,7 +283,6 @@ void scale_image(image im, int c, float v)
     	}
     }
 }
-
 
 
 
