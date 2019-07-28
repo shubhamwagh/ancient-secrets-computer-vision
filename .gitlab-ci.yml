@@ -78,3 +78,42 @@ test:vision-hw1:
     artifacts:
         paths:
         - ./
+
+
+#Full build of all packages in the repo
+build:vision-hw2:
+    stage: build
+    image: registry.gitlab.com/shubhamwagh48/continuous-integration-vision:latest
+
+    tags:
+        - gitlab-org 
+
+    script: 
+        - cd ./vision-hw2 && make
+        
+    artifacts:
+        paths:
+        - ./
+
+#test all packages in the repo
+test:vision-hw2:
+    stage: test
+    image: registry.gitlab.com/shubhamwagh48/continuous-integration-vision:latest
+
+    variables:
+        GIT_STRATEGY: none
+
+    tags:
+        - gitlab-org 
+
+    dependencies:
+    - build:vision-hw2
+
+    script:
+    - cd ./vision-hw2
+    - ls -lah
+    - ./uwimg test
+
+    artifacts:
+        paths:
+        - ./
