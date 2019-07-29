@@ -117,8 +117,13 @@ image find_and_draw_matches(image a, image b, float sigma, float thresh, int nms
 // returns: l1 distance between arrays (sum of absolute differences).
 float l1_distance(float *a, float *b, int n)
 {
+    float distance_l1 = 0.0;
     // TODO: return the correct number.
-    return 0;
+    for (int i =0; i < n; i++)
+    {
+        distance_l1 += fabs(a[i] - b[i]);
+    }
+    return distance_l1;
 }
 
 // Finds best matches between descriptors of two images.
@@ -136,12 +141,20 @@ match *match_descriptors(descriptor *a, int an, descriptor *b, int bn, int *mn)
     match *m = calloc(an, sizeof(match));
     for(j = 0; j < an; ++j){
         // TODO: for every descriptor in a, find best match in b.
+        for (i =0; i < bn; ++i)
+        {
+            int bind = i;
+            m[j].ai = j;
+            m[j].bi = bind; // <- should be index in b.
+            m[j].p = a[j].p;
+            m[j].q = b[bind].p;
+            m[j].distance = l1
+
+
+        }
         // record ai as the index in *a and bi as the index in *b.
         int bind = 0; // <- find the best match
-        m[j].ai = j;
-        m[j].bi = bind; // <- should be index in b.
-        m[j].p = a[j].p;
-        m[j].q = b[bind].p;
+
         m[j].distance = 0; // <- should be the smallest L1 distance!
     }
 
