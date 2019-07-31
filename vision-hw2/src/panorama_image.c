@@ -139,30 +139,63 @@ match *match_descriptors(descriptor *a, int an, descriptor *b, int bn, int *mn)
     // We will have at most an matches.
     *mn = an;
     match *m = calloc(an, sizeof(match));
+    float distance = 0.0;
+    float dist_min = 0.0;
     for(j = 0; j < an; ++j){
         // TODO: for every descriptor in a, find best match in b.
+        int bind =0;
         for (i =0; i < bn; ++i)
         {
-            int bind = i;
-            m[j].ai = j;
-            m[j].bi = bind; // <- should be index in b.
-            m[j].p = a[j].p;
-            m[j].q = b[bind].p;
-            m[j].distance = l1
+            distance = l1_distance(a[j].data, b[i].data, a[j].n);
+            if(i ==0)
+            {
 
+                dist_min = distance;
 
+            }
+            else
+            {
+                if (distance < dist_min)
+                {
+                    dist_min = distance;
+                    bind = i;
+                    // <- should be the smallest L1 distance!
+                }
+            }
         }
-        // record ai as the index in *a and bi as the index in *b.
-        int bind = 0; // <- find the best match
 
-        m[j].distance = 0; // <- should be the smallest L1 distance!
+        m[j].ai = j;
+        m[j].bi = bind;
+        m[j].p = a[j].p;
+        m[j].q = b[bind].p;
+        m[j].distance = dist_min;
     }
 
     int count = 0;
     int *seen = calloc(bn, sizeof(int));
     // TODO: we want matches to be injective (one-to-one).
     // Sort matches based on distance using match_compare and qsort.
+    qsort(m, *mn, sizeof(match), match_compare);
     // Then throw out matches to the same element in b. Use seen to keep track.
+
+    for (i = 0; i < *mn; ) {
+        j = 0;
+        while (seen[j] != m[i].bi) {
+            j += 1;
+        }
+
+        if (j < count) {
+            for (int k = i; k < *mn; k++) {
+                m[k] = m[k+1];
+            }
+            *mn -= 1;
+        } else {
+            seen[count] = m[i].bi;
+            count += 1;
+            i++;
+        }
+    }
+
     // Each point should only be a part of one match.
     // Some points will not be in a match.
     // In practice just bring good matches to front of list, set *mn.
