@@ -211,10 +211,19 @@ match *match_descriptors(descriptor *a, int an, descriptor *b, int bn, int *mn)
 point project_point(matrix H, point p)
 {
     matrix c = make_matrix(3, 1);
-    // TODO: project point p with homography H.
+    point q = make_point(0, 0);
+
+    c.data[0][0] = p.x;
+    c.data[1][0] = p.y;
+    c.data[2][0] = 1;
     // Remember that homogeneous coordinates are equivalent up to scalar.
     // Have to divide by.... something...
-    point q = make_point(0, 0);
+
+    c = matrix_mult_matrix(H, c);
+
+    q.x = c.data[0][0]/c.data[2][0];
+    q.y = c.data[1][0]/c.data[2][0];
+
     return q;
 }
 
@@ -223,8 +232,7 @@ point project_point(matrix H, point p)
 // returns: L2 distance between them.
 float point_distance(point p, point q)
 {
-    // TODO: should be a quick one.
-    return 0;
+    return sqrt(powf(q.x - p.x, 2) + powf(q.y - p.y, 2));
 }
 
 // Count number of inliers in a set of matches. Should also bring inliers
@@ -241,6 +249,25 @@ int model_inliers(matrix H, match *m, int n, float thresh)
     int i;
     int count = 0;
     // TODO: count number of matches that are inliers
+    float distance =0.0;
+    int j;
+    for (int i =0; i < n; )
+    {
+        distance = point_distance(project_point(H, m[i].p), m[i].q);
+        if (distance < thresh)
+        {
+            count++;
+            i++;
+        }
+        else
+        {
+            n--;
+            for (j = i; j < n; j++)
+            {
+                m[j] = m[j+1];
+            }
+        }
+    }
     // i.e. distance(H*p, q) < thresh
     // Also, sort the matches m so the inliers are the first 'count' elements.
     return count;
