@@ -121,7 +121,7 @@ float l1_distance(float *a, float *b, int n)
     // TODO: return the correct number.
     for (int i =0; i < n; i++)
     {
-        distance_l1 += fabs(a[i] - b[i]);
+        distance_l1 += fabsf(a[i] - b[i]);
     }
     return distance_l1;
 }
@@ -211,18 +211,14 @@ match *match_descriptors(descriptor *a, int an, descriptor *b, int bn, int *mn)
 point project_point(matrix H, point p)
 {
     matrix c = make_matrix(3, 1);
-    point q = make_point(0, 0);
 
     c.data[0][0] = p.x;
     c.data[1][0] = p.y;
     c.data[2][0] = 1;
     // Remember that homogeneous coordinates are equivalent up to scalar.
     // Have to divide by.... something...
-
-    c = matrix_mult_matrix(H, c);
-
-    q.x = c.data[0][0]/c.data[2][0];
-    q.y = c.data[1][0]/c.data[2][0];
+    matrix new_points = matrix_mult_matrix(H, c);
+    point q = make_point(new_points.data[0][0]/new_points.data[2][0], new_points.data[1][0]/new_points.data[2][0]);
 
     return q;
 }
@@ -232,7 +228,7 @@ point project_point(matrix H, point p)
 // returns: L2 distance between them.
 float point_distance(point p, point q)
 {
-    return sqrt(powf(q.x - p.x, 2) + powf(q.y - p.y, 2));
+    return sqrtf(powf(q.x - p.x, 2) + powf(q.y - p.y, 2));
 }
 
 // Count number of inliers in a set of matches. Should also bring inliers
@@ -246,14 +242,15 @@ float point_distance(point p, point q)
 //          so that the inliers are first in the array. For drawing.
 int model_inliers(matrix H, match *m, int n, float thresh)
 {
-    int i;
     int count = 0;
+    int i,j;
     // TODO: count number of matches that are inliers
     float distance =0.0;
-    int j;
-    for (int i =0; i < n; )
+    for (i =0; i < n; )
     {
-        distance = point_distance(project_point(H, m[i].p), m[i].q);
+        point projected_point = project_point(H, m[i].p);
+
+        distance = point_distance(projected_point, m[i].q);
         if (distance < thresh)
         {
             count++;
@@ -279,8 +276,15 @@ int model_inliers(matrix H, match *m, int n, float thresh)
 void randomize_matches(match *m, int n)
 {
     // TODO: implement Fisher-Yates to shuffle the array.
+    int i,j;
+    match swp;
+    for (i = 0; i < n-1; i++) {
+        j = floor((rand()/RAND_MAX)*(n-i)+i);
+        swp = m[i];
+        m[i] = m[j];
+        m[j] = swp;
+    }
 }
-
 // Computes homography between two images given matching pixels.
 // match *matches: matching points between images.
 // int n: number of matches to use in calculating homography.
@@ -297,6 +301,29 @@ matrix compute_homography(match *matches, int n)
         double y  = matches[i].p.y;
         double yp = matches[i].q.y;
         // TODO: fill in the matrices M and b.
+        int index_1_row = 2 * i;
+        int index_2_row = (2 * i) + 1;
+        M.data[index_1_row][0] = x;
+        M.data[index_1_row][1] = y;
+        M.data[index_1_row][2] = 1;
+        M.data[index_1_row][3] = 0;
+        M.data[index_1_row][4] = 0;
+        M.data[index_1_row][5] = 0;
+        M.data[index_1_row][6] = x * (-xp);
+        M.data[index_1_row][7] = y * (-xp);
+
+        b.data[index_1_row][0] = xp;
+
+        M.data[index_2_row][0] = 0;
+        M.data[index_2_row][1] = 0;
+        M.data[index_2_row][2] = 0;
+        M.data[index_2_row][3] = x;
+        M.data[index_2_row][4] = y;
+        M.data[index_2_row][5] = 1;
+        M.data[index_2_row][6] = x * (-yp);
+        M.data[index_2_row][7] = y * (-yp);
+
+        b.data[index_2_row][0] = yp;
 
     }
     matrix a = solve_system(M, b);
@@ -308,6 +335,15 @@ matrix compute_homography(match *matches, int n)
 
     matrix H = make_matrix(3, 3);
     // TODO: fill in the homography H based on the result in a.
+    H.data[0][0] = a.data[0][0];
+    H.data[0][1] = a.data[1][0];
+    H.data[0][2] = a.data[2][0];
+    H.data[1][0] = a.data[3][0];
+    H.data[1][1] = a.data[4][0];
+    H.data[1][2] = a.data[5][0];
+    H.data[2][0] = a.data[6][0];
+    H.data[2][1] = a.data[7][0];
+    H.data[2][2] = 1;
 
 
     free_matrix(a);
@@ -325,7 +361,28 @@ matrix RANSAC(match *m, int n, float thresh, int k, int cutoff)
 {
     int e;
     int best = 0;
+    int count_inliers =0 ;
     matrix Hb = make_translation_homography(256, 0);
+    matrix H = make_matrix(3,3);
+    for (e =0; e < k; e++)
+    {
+        randomize_matches(m, n);
+        H = compute_homography(m , 4);
+
+        count_inliers = model_inliers(H, m, n, thresh);
+
+        if (count_inliers > best)
+        {
+            Hb = compute_homography(m, count_inliers);
+            best = count_inliers;
+        }
+        if (best >= cutoff)
+        {
+            free_matrix(H);
+            return Hb;
+        }
+
+    }
     // TODO: fill in RANSAC algorithm.
     // for k iterations:
     //     shuffle the matches
@@ -336,6 +393,7 @@ matrix RANSAC(match *m, int n, float thresh, int k, int cutoff)
     //         if it's better than the cutoff:
     //             return it immediately
     // if we get to the end return the best homography
+    free_matrix(H);
     return Hb;
 }
 
@@ -381,6 +439,7 @@ image combine_images(image a, image b, matrix H)
         for(j = 0; j < a.h; ++j){
             for(i = 0; i < a.w; ++i){
                 // TODO: fill in.
+                set_pixel(c, i-dx, j-dy, k, get_pixel(a, i, j, k));
             }
         }
     }
@@ -390,7 +449,21 @@ image combine_images(image a, image b, matrix H)
     // and see if their projection from a coordinates to b coordinates falls
     // inside of the bounds of image b. If so, use bilinear interpolation to
     // estimate the value of b at that projection, then fill in image c.
+    point projected_b = project_point(H, make_point(0,0));
+    float pixel_b = 0.0;
 
+    for(k = 0; k < c.c; ++k){
+        for(j = 0; j < c.h; ++j){
+            for(i = 0; i < c.w; ++i){
+                projected_b = project_point(H, make_point(i,j));
+                if ((projected_b.x >= 0.0f) && (projected_b.y >= 0.0f) && (projected_b.x < b.w) && (projected_b.y < b.h))
+                {
+                    pixel_b = bilinear_interpolate(b, projected_b.x, projected_b.y, k);
+                    set_pixel(c, (i-dx), (j-dy), k, pixel_b);
+                }
+            }
+        }
+    }
     return c;
 }
 
@@ -413,13 +486,17 @@ image panorama_image(image a, image b, float sigma, float thresh, int nms, float
     descriptor *ad = harris_corner_detector(a, sigma, thresh, nms, &an);
     descriptor *bd = harris_corner_detector(b, sigma, thresh, nms, &bn);
 
+
+
     // Find matches
     match *m = match_descriptors(ad, an, bd, bn, &mn);
+
 
     // Run RANSAC to find the homography
     matrix H = RANSAC(m, mn, inlier_thresh, iters, cutoff);
 
-    if(1){
+
+    if(0){
         // Mark corners and matches between images
         mark_corners(a, ad, an);
         mark_corners(b, bd, bn);
@@ -432,6 +509,7 @@ image panorama_image(image a, image b, float sigma, float thresh, int nms, float
     free(m);
 
     // Stitch the images together with the homography
+
     image comb = combine_images(a, b, H);
     return comb;
 }
@@ -446,3 +524,4 @@ image cylindrical_project(image im, float f)
     image c = copy_image(im);
     return c;
 }
+
