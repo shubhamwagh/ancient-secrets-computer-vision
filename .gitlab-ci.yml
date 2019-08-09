@@ -135,7 +135,7 @@ build:vision-hw3:
         - ./
 
 #test all packages in the repo
-test:vision-hw2:
+test:vision-hw3:
     stage: test
     image: registry.gitlab.com/shubhamwagh48/continuous-integration-vision:latest
 
