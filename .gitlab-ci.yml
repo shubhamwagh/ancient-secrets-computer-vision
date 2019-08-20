@@ -152,6 +152,45 @@ test:vision-hw3:
     - cd ./vision-hw3
     - ls -lah
     - ./uwimg test
+    
+    
+
+
+#Full build of all packages in the repo
+build:vision-hw4:
+    stage: build
+    image: registry.gitlab.com/shubhamwagh48/continuous-integration-vision:latest
+
+    tags:
+        - gitlab-org 
+
+    script: 
+        - cd ./vision-hw4 && make
+        
+    artifacts:
+        paths:
+        - ./
+
+#test all packages in the repo
+test:vision-hw4:
+    stage: test
+    image: registry.gitlab.com/shubhamwagh48/continuous-integration-vision:latest
+
+    variables:
+        GIT_STRATEGY: none
+
+    tags:
+        - gitlab-org 
+
+    dependencies:
+    - build:vision-hw4
+
+    script:
+    - cd ./vision-hw4
+    - ls -lah
+    - ./uwimg test
+
+    artifacts:    
 
     artifacts:
         paths:
